@@ -1,0 +1,44 @@
+-/ZONA DE DECLARACION DE VARIABLES/-
+DECVAR 
+	A, B, C, D, E: INT
+	G, F, W: STRING
+ENDDEC
+
+-/ASIGNACIONES/-
+A := 5
+B := 10
+C := 15
+
+-/IF/-
+IF(A < 4 && B>9)
+ 	D:=5
+ENDIF
+
+-/IF ELSE/-
+IF(A == 4 || B!=9)
+ 	D:=5
+ELSE
+	D:=4
+ENDIF
+
+A := AVG ([2.3 ; 1.22])
+
+IF( INLIST( A + 1 ; [ 110; var1 ] ) )
+THEN
+{
+	A:=1
+}
+ELSE
+{
+	A:=0
+}
+
+G:= "HOLA"
+F:="HOLA TODO BIEN"
+E:= 12
+
+-/WHILE/-
+WHILE(E > B)
+{
+	E:= E - 1
+}
