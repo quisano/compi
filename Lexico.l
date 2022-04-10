@@ -8,6 +8,10 @@
 	FILE  *yyin;
 	int yylex();
 	void yyerror(const char *s);
+	int validarInt(int);
+	int validarFloat(double);
+	int validarString(char[]);
+	void nuevoSimbolo(char nombre[], char tipo[], void* valor);
 %}
 
 %option noyywrap
@@ -36,6 +40,10 @@ do|DO					{ return DO; }
 endwhile|ENDWHILE		{ return ENDWHILE; }
 inlist|INLIST			{ return INLIST; }
 avg|AVG					{ return AVG; }
+write|WRITE				{ return WRITE; }
+read|READ				{ return READ; }
+devvar|DECVAR			{ return DECVAR; }
+enddec|ENDDEC			{ return ENDDEC; }
 
 int|INT					{ return INT; }
 float|FLOAT				{ return FLOAT; }
@@ -72,22 +80,30 @@ string|STRING			{ return STRING; }
 "!"						{ return NOT; }
 
 {ID}			{ 
-					//yylval.string_val = yytext;
+					yylval.string_val = yytext;
+					int cero = 0;
+					nuevoSimbolo(yylval.string_val,"ID",&cero);
 					return ID;
 				}
 				
 {CTE_INT}		{
-					//yylval.int_val = atoi(yytext);
+					yylval.int_val = atoi(yytext);
+					validarInt(yylval.int_val);
+					nuevoSimbolo("int","CTE_INT",&yylval.int_val);
 					return CTE_INT;
 				}
 				
 {CTE_FLOAT}		{
-					//yylval.float_val = atof(yytext);
+					yylval.float_val = atof(yytext);
+					validarFloat(yylval.float_val); 
+					nuevoSimbolo("float","CTE_FLOAT",&yylval.float_val);
 					return CTE_FLOAT;
 				}
 				
 {TEXTO}			{ 
-					//yylval.string_val = yytext;
+					yylval.string_val = yytext;
+					validarString(yylval.string_val);
+					nuevoSimbolo("string","CTE_STRING",yylval.string_val);
 					return CTE_STRING;
 				}
 
@@ -99,14 +115,36 @@ string|STRING			{ return STRING; }
 						fprintf(stderr, "Syntax Error, Caracter invalido: %s \n",yytext);
 						yyerror(errorMsg);
 					}
-
-
-"\n"      		
-"\t"		
+					
+"\n"
+"\t"	
 %%
 	
+int validarInt(int valor){
+
+	if( valor < 0 || valor > 65535){
+		yyerror("Entero fuera de rango");
+	}
+}
+
+int validarFloat(double valor){
+
+	if(valor > FLT_MAX || valor < FLT_MIN){	
+		yyerror("Float fuera de rango");
+	}
+}
+
+int validarString(char cadena[]){
+	
+	int valor=strlen(cadena);
+	
+	if(valor>30){
+		yyerror("String fuera de rango");
+	}
+}
+	
 void yyerror(const char *msg) {
-	fprintf(stderr, "\n\n ***** ERROR :: %s ***** \n\n ",msg);
+	fprintf(stderr, "\nERROR::%s \n",msg);
 	system("Pause");
 	exit(1);
 }

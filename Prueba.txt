@@ -1,44 +1,39 @@
--/ZONA DE DECLARACION DE VARIABLES/-
-DECVAR 
-	A, B, C, D, E: INT
-	G, F, W: STRING
-ENDDEC
+-/ Declaración de variables /-
+DECVAR A, B, C, D, E : INT ENDDEC
 
--/ASIGNACIONES/-
+-/ Asignaciones /-
 A := 5
 B := 10
 C := 15
 
--/IF/-
-IF(A < 4 && B>9)
- 	D:=5
-ENDIF
-
--/IF ELSE/-
-IF(A == 4 || B!=9)
- 	D:=5
-ELSE
-	D:=4
-ENDIF
-
-A := AVG ([2.3 ; 1.22])
-
-IF( INLIST( A + 1 ; [ 110; var1 ] ) )
-THEN
-{
-	A:=1
+-/ Condición If /-
+IF( A < 4 && B > 9 ){
+ 	D := 5
 }
-ELSE
-{
+
+-/ Condición If con Else /-
+IF( A == 4 || B != 9 ){
+ 	D := 5
+}ELSE{
+	D := 4
+}
+
+-/ Función average /-
+A := AVG([2.3 ; 1.22])
+
+-/ Función inlist /-
+IF( INLIST( A + 1 ; [ 110; var1 ] ) ){
+	A:=1
+}ELSE{
 	A:=0
 }
 
+-/  /-
 G:= "HOLA"
-F:="HOLA TODO BIEN"
+F:= "HOLA TODO BIEN"
 E:= 12
 
--/WHILE/-
-WHILE(E > B)
-{
+-/ Ciclo While /-
+WHILE(E > B){
 	E:= E - 1
 }
