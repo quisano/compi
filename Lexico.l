@@ -25,29 +25,9 @@ int yylval;
 char *yyltext;
 
 int yyerror(void);
-
-int eval_int( char* a ){
-	int b = atoi(a);
-	if( b  < -32768 || b > 32767 ){
-		printf( "\nERROR LEXICO : Rango entero Invalido (16 bits): %s\n", yytext ); exit (0);}
-	return 0;
-}
-int eval_float( char* a ){
-	char *ptr;
-	long b;
-	strtoul(a,&ptr,b);
-	if( b  < -2147483648 || b > 2147483647 ){
-		printf( "\nERROR LEXICO : Rango reales Invalido (32 bits): %s\n", yytext ); exit (0);} 
-	return 0;
-}
-
-int eval_string( char* a ){
-	unsigned long b = sizeof(a);
-	if( b  < 0 || b > 1073741824 ){
-		printf( "\nERROR LEXICO : Longitud String Invalido ( 30 caracteres ): %s\n", yytext ); exit (0);}
-	return 0;
-}
-
+int eval_int( char* n );
+int eval_float( char* n );
+int eval_string( char* s );
 %}
 
 %option noyywrap  
@@ -159,6 +139,30 @@ INLIST			"INLIST"
 .			 { printf( "\nERROR LEXICO : Caracter no reconocido: %s\n", yytext ); exit (0);}
 
 %%
+
+int eval_int( char* n ){
+	int entero = atoi(n);
+	if( entero  < -65535 || entero > 65535 ){
+		printf( "\nERROR LEXICO : Rango entero Invalido (16 bits): %s\n", yytext ); 
+		exit (0);
+	}
+	return 0;
+}
+int eval_float( char* n ){
+	double real = atof(n);
+	if( real  < -2147483648 || real > 2147483647 ){
+		printf( "\nERROR LEXICO : Rango reales Invalido (32 bits): %s\n", yytext ); 
+		exit (0);
+	} 
+	return 0;
+}
+
+int eval_string( char* s ){
+	int cadena = strlen(s);
+	if( cadena > 30 ){
+		printf( "\nERROR LEXICO : Longitud String Invalido ( 30 caracteres ): %s\n", yytext ); exit (0);}
+	return 0;
+}
 
 int guardar_TS(char* tipo, char* nombre){
 	int i;
