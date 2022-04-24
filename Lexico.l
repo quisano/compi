@@ -1,150 +1,161 @@
 %{
-	#include <stdio.h>
-	#include <stdlib.h>
-	#include <stdbool.h>
-	#include <string.h>
-	#include <float.h>
-    #include "y.tab.h"
-	FILE  *yyin;
-	int yylex();
-	void yyerror(const char *s);
-	int validarInt(int);
-	int validarFloat(double);
-	int validarString(char[]);
-	void nuevoSimbolo(char nombre[], char tipo[], void* valor);
+#include <stdio.h>
+#include <stdlib.h>
+#include "y.tab.h"
+
+FILE  *yyin;
+int yylval;
+char *yyltext;
+
+int yyerror(void);
+
+int eval_int( char* a ){
+	int b = atoi(a);
+	if( b  < -32768 || b > 32767 ){
+		printf( "\nERROR LEXICO : Rango entero Invalido (16 bits): %s\n", yytext ); exit (0);}
+	return 0;
+}
+/*int eval_float( char* a ){
+	char *ptr;
+	long b;
+	strtoul(a,&ptr,b);
+	if( b  < -2147483648 || b > 2147483647 ){
+		printf( "\nERROR LEXICO : Rango reales Invalido (32 bits): %s\n", yytext ); exit (0);} 
+	return 0;
+}*/
+
+int eval_string( char* a ){
+	unsigned long b = sizeof(a);
+	if( b  < 0 || b > 1073741824 ){
+		printf( "\nERROR LEXICO : Longitud String Invalido ( 30 caracteres ): %s\n", yytext ); exit (0);}
+	return 0;
+}
+
 %}
 
-%option noyywrap
-%option yylineno
+%option noyywrap  
+%option yylineno 
 
-DIGITO_CON_CERO			[0-9]
-DIGITO_SIN_CERO			[1-9]
-LETRA					[a-zA-Z]
-ID						{LETRA}({LETRA}|{DIGITO_CON_CERO}|_)*
-CTE_INT					"-"{DIGITO_SIN_CERO}+|{DIGITO_CON_CERO}+
-CTE_FLOAT				"-"{DIGITO_CON_CERO}+"."{DIGITO_CON_CERO}*|{DIGITO_CON_CERO}*"."{DIGITO_CON_CERO}+|{DIGITO_CON_CERO}+"."{DIGITO_CON_CERO}*
-TEXTO         			"\""({CARACTER}|{ESPACIO})*"\""
-CARACTER        		[a-z,A-Z,0-9,=,>,<,!,:,+,-,*,/,@]
-ESPACIO         		[" "]
-A_COMENTARIO			"-/"
-C_COMENTARIO			"/-"
-COMENTARIOS     		{A_COMENTARIO}({LETRA}|{DIGITO_CON_CERO}|.)+{C_COMENTARIO}
-TEXTO_INVALIDO  		[^{CARACTER} 	\n]
+CORA			"["
+CORC			"]"
+
+DIGITO			[0-9]
+LETRA			[aA-zZ]
+SIMBOLO			[:>!]
+A_COMENTARIO	"-/"
+C_COMENTARIO	"/-"
+
+CTE_E	        {DIGITO}+
+CTE_R			{DIGITO}*"."{DIGITO}*
+ID				{LETRA}({LETRA}|{DIGITO}|_)*
+CTE_S 			"\""({LETRA}|{DIGITO}|{SIMBOLO}|.)+"\""
+COMENTARIO		{A_COMENTARIO}({LETRA}|{DIGITO}|.)+{C_COMENTARIO}
+DP				":"
+PC				";"
+OP_ASIG   		":""="
+OP_SUM		    "+"
+OP_MUL          "*"
+OP_RES		    "-"
+OP_DIV          "/"
+COMA			","
+LA              "{"
+LC				"}"
+PARA			"("
+PARC			")"
+PUNTO			"."
+AND 			"&&"
+OR				"||"
+CO_IGUAL		"=="
+CO_DIST			"!="
+CO_MENI			"<="
+CO_MEN			"<"
+CO_MAYI			">="
+CO_MAY			">"
+DECVAR			"DECVAR"
+ENDDEC			"ENDDEC"
+INT				"INT"
+FLOAT			"FLOAT"
+STRING			"STRING"
+IF				"IF"
+THEN			"THEN"
+ELSE			"ELSE"
+ENDIF			"ENDIF"
+WHILE			"WHILE"
+READ			"READ"
+WRITE			"WRITE"
+AVG				"AVG"
+INLIST			"INLIST"
+
 %%
 
-if|IF					{ return IF; }
-else|ELSE				{ return ELSE; }
-endif|ENDIF				{ return ENDIF; }
-while|WHILE				{ return WHILE; }
-do|DO					{ return DO; }
-endwhile|ENDWHILE		{ return ENDWHILE; }
-inlist|INLIST			{ return INLIST; }
-avg|AVG					{ return AVG; }
-write|WRITE				{ return WRITE; }
-read|READ				{ return READ; }
-devvar|DECVAR			{ return DECVAR; }
-enddec|ENDDEC			{ return ENDDEC; }
+{CORA}          {printf("\nCorAbre: %s", yytext);return CORA;}
+{CORC}			{printf("\nCorCierra: %s", yytext);return CORC;}
 
-int|INT					{ return INT; }
-float|FLOAT				{ return FLOAT; }
-string|STRING			{ return STRING; }
+{DECVAR}		{printf("\nP_Reservada_DECVAR: %s", yytext);return DECVAR; }
+{ENDDEC}		{printf("\nP_Reservada_ENDDEC: %s", yytext);return ENDDEC; }
+{INT}			{printf("\nP_Reservada_INT: %s", yytext);return INT; }												
+{FLOAT}			{printf("\nP_Reservada_FLOAT: %s", yytext);return FLOAT;}
+{STRING}		{printf("\nP_Reservada_STRING: %s", yytext);return STRING;}
+{IF}			{printf("\nP_Reservada_IF: %s", yytext);return IF;}
+{THEN}			{printf("\nP_Reservada_THEN: %s", yytext);return THEN;}
+{ELSE}			{printf("\nP_Reservada_THEN: %s", yytext);return ELSE;}
+{ENDIF}			{printf("\nP_Reservada_ENDIF: %s", yytext);return ENDIF;}
+{WHILE}			{printf("\nP_Reservada_WHILE: %s", yytext);return WHILE;}
+{READ}			{printf("\nP_Reservada_READ: %s", yytext);return READ;}
+{WRITE}			{printf("\nP_Reservada_WRITE: %s", yytext);return WRITE;}
+{AVG}			{printf("\nP_Reservada_AVG: %s", yytext);return AVG;}
+{INLIST}		{printf("\nP_Reservada_INLIST: %s", yytext);return INLIST;}
+
+{CTE_E}			{printf("\nConstEntera: %s", yytext); eval_int(yytext);	return CTE_E;} 
+{CTE_R}			{printf("\nConstReal: %s", yytext); return CTE_R;} 
+{ID}			{printf("\nIdentificador: %s", yytext);return ID;}
+{CTE_S} 		{printf("\nConstString: %s", yytext); eval_string(yytext); return CTE_S;} 
+{COMENTARIO}
+{DP}			{printf("\nDosPuntos: %s", yytext);return DP;}
+{PC}			{printf("\nPuntoComa: %s", yytext);return PC;}
+{OP_SUM}		{printf("\nSuma: %s", yytext);return OP_SUM;}
+{OP_ASIG}		{printf("\nAsignacion: %s", yytext);return OP_ASIG;}
+{OP_MUL}		{printf("\nMultiplicacion: %s", yytext);return OP_MUL;}
+{OP_RES}		{printf("\nResta: %s", yytext);return OP_RES;}
+{OP_DIV}		{printf("\nDivision: %s", yytext);return OP_DIV;}
+{COMA}			{printf("\nComa: %s", yytext);return COMA;}
+{LA}            {printf("\nLlAbre: %s", yytext);return LA;}
+{LC}			{printf("\nLlCierra: %s", yytext);return LC;}
+{PARA}			{printf("\nParAbre: %s", yytext);return PARA;}
+{PARC}			{printf("\nParCierra: %s", yytext);return PARC;}
+{PUNTO}			{printf("\nPunto: %s", yytext);return PUNTO;}
+{AND}			{printf("\nAnd: %s", yytext);return AND;}
+{OR}			{printf("\nOr: %s", yytext);return OR;}
+{CO_IGUAL}		{printf("\nIgual: %s", yytext);return CO_IGUAL;}
+{CO_DIST}		{printf("\nNoIgual: %s", yytext);return CO_DIST;}
+{CO_MENI}		{printf("\nMenIgual: %s", yytext);return CO_MENI;}
+{CO_MEN}		{printf("\nMenor: %s", yytext);return CO_MEN;}
+{CO_MAYI}		{printf("\nMayIgual: %s", yytext);return CO_MAYI;}
+{CO_MAY}		{printf("\nMayor: %s", yytext);return CO_MAY;}
 
 
+"\n"      		
+"\t"
+"\n\t"
+" "             		
+"\r\n"
+.			 { printf( "\nERROR LEXICO : Caracter no reconocido: %s\n", yytext ); exit (0);}
 
-
-
-"+"						{ return OP_SUM; }
-"-"						{ return OP_RES; }
-"/"						{ return OP_DIV; }
-"*"						{ return OP_MUL; }
-"%"						{ return OP_MOD; }
-":="					{ return OP_ASIG; }
-"="						{ return OP_IGUAL; }
-":"						{ return OP_DOSP; }
-","						{ return CAR_COMA; }
-";"						{ return CAR_PYC; }
-"("						{ return CAR_PA; }
-")"						{ return CAR_PC; }
-"["						{ return CAR_CA; }
-"]"						{ return CAR_CC; }
-"{"						{ return CAR_LA; }
-"}"						{ return CAR_LC; }
-">"						{ return CMP_MAYOR; }
-"<"						{ return CMP_MENOR; }
-">="					{ return CMP_MAYORIGUAL; }
-"<="					{ return CMP_MENORIGUAL; }
-"!="					{ return CMP_DISTINTO; }
-"=="					{ return CMP_IGUAL; }
-"&&"					{ return AND; }
-"||"					{ return OR; }
-"!"						{ return NOT; }
-
-{ID}			{ 
-					yylval.string_val = yytext;
-					int cero = 0;
-					nuevoSimbolo(yylval.string_val,"ID",&cero);
-					return ID;
-				}
-				
-{CTE_INT}		{
-					yylval.int_val = atoi(yytext);
-					validarInt(yylval.int_val);
-					nuevoSimbolo("int","CTE_INT",&yylval.int_val);
-					return CTE_INT;
-				}
-				
-{CTE_FLOAT}		{
-					yylval.float_val = atof(yytext);
-					validarFloat(yylval.float_val); 
-					nuevoSimbolo("float","CTE_FLOAT",&yylval.float_val);
-					return CTE_FLOAT;
-				}
-				
-{TEXTO}			{ 
-					yylval.string_val = yytext;
-					validarString(yylval.string_val);
-					nuevoSimbolo("string","CTE_STRING",yylval.string_val);
-					return CTE_STRING;
-				}
-
-{COMENTARIOS}
-
-{TEXTO_INVALIDO}	{ 
-						char errorMsg[100]; 
-						sprintf(errorMsg, "Syntax Error, Caracter invalido: %s \n",yytext);
-						fprintf(stderr, "Syntax Error, Caracter invalido: %s \n",yytext);
-						yyerror(errorMsg);
-					}
-					
-"\n"
-"\t"	
 %%
-	
-int validarInt(int valor){
 
-	if( valor < 0 || valor > 65535){
-		yyerror("Entero fuera de rango");
+//PRUEBA
+/*int main(int argc,char *argv[])
+{
+	
+	if ((yyin = fopen(argv[1], "r")) == NULL)
+	{
+		printf("\nNo se puede abrir el archivo: %s\n", argv[1]);
 	}
-}
-
-int validarFloat(double valor){
-
-	if(valor > FLT_MAX || valor < FLT_MIN){	
-		yyerror("Float fuera de rango");
+	else
+	{
+		yylex();
 	}
-}
+	
+	fclose(yyin);
 
-int validarString(char cadena[]){
-	
-	int valor=strlen(cadena);
-	
-	if(valor>30){
-		yyerror("String fuera de rango");
-	}
-}
-	
-void yyerror(const char *msg) {
-	fprintf(stderr, "\nERROR::%s \n",msg);
-	system("Pause");
-	exit(1);
-}
+}*/
