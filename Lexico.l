@@ -3,6 +3,23 @@
 #include <stdlib.h>
 #include "y.tab.h"
 
+struct struct_tablaSimbolos{
+	char nombre[100];
+	char tipo[100];
+	char valor[50];
+	char longitud[100];
+};
+
+int guardar_TS(char*, char*);
+int crear_TS();
+
+int puntero_array = 0;
+
+char* str_cpy(char* destination, const char* source);
+int strncmp(const char * str1, const char * str2);
+
+struct struct_tablaSimbolos tablaSimbolos[1000];
+
 FILE  *yyin;
 int yylval;
 char *yyltext;
@@ -85,13 +102,14 @@ READ			"READ"
 WRITE			"WRITE"
 AVG				"AVG"
 INLIST			"INLIST"
+FIN 			"FIN"
 
 %%
 
 {CORA}          {printf("\nCorAbre: %s", yytext);return CORA;}
 {CORC}			{printf("\nCorCierra: %s", yytext);return CORC;}
 
-{DECVAR}		{printf("\nP_Reservada_DECVAR: %s", yytext);return DECVAR; }
+{DECVAR}		{printf("\nP_Reservada_DECVAR: %s", yytext); return DECVAR; }
 {ENDDEC}		{printf("\nP_Reservada_ENDDEC: %s", yytext);return ENDDEC; }
 {INT}			{printf("\nP_Reservada_INT: %s", yytext);return INT; }												
 {FLOAT}			{printf("\nP_Reservada_FLOAT: %s", yytext);return FLOAT;}
@@ -105,11 +123,12 @@ INLIST			"INLIST"
 {WRITE}			{printf("\nP_Reservada_WRITE: %s", yytext);return WRITE;}
 {AVG}			{printf("\nP_Reservada_AVG: %s", yytext);return AVG;}
 {INLIST}		{printf("\nP_Reservada_INLIST: %s", yytext);return INLIST;}
+{FIN}			{printf("\nP_Reservada_FIN: %s", yytext); crear_TS();}
 
-{CTE_E}			{printf("\nConstEntera: %s", yytext); eval_int(yytext);	return CTE_E;} 
-{CTE_R}			{printf("\nConstReal: %s", yytext); return CTE_R;} 
-{ID}			{printf("\nIdentificador: %s", yytext);return ID;}
-{CTE_S} 		{printf("\nConstString: %s", yytext); eval_string(yytext); return CTE_S;} 
+{CTE_E}			{printf("\nConstEntera: %s", yytext); guardar_TS("CTE_E", yytext); eval_int(yytext); return CTE_E;} 
+{CTE_R}			{printf("\nConstReal: %s", yytext); guardar_TS("CTE_R", yytext); return CTE_R;} 
+{ID}			{printf("\nIdentificador: %s", yytext); guardar_TS("ID", yytext); return ID;}
+{CTE_S} 		{printf("\nConstString: %s", yytext); guardar_TS("CTE_S", yytext); eval_string(yytext); return CTE_S;} 
 {COMENTARIO}
 {DP}			{printf("\nDosPuntos: %s", yytext);return DP;}
 {PC}			{printf("\nPuntoComa: %s", yytext);return PC;}
@@ -143,19 +162,78 @@ INLIST			"INLIST"
 
 %%
 
-//PRUEBA
-/*int main(int argc,char *argv[])
-{
-	
-	if ((yyin = fopen(argv[1], "r")) == NULL)
-	{
-		printf("\nNo se puede abrir el archivo: %s\n", argv[1]);
+int guardar_TS(char* tipo, char* nombre){
+	int i;
+	int retornar;
+	for(i = 0; i < puntero_array; i++){
+		if(strncmp(tablaSimbolos[i].nombre, nombre) == 0){
+			return i;
+		}
 	}
-	else
-	{
-		yylex();
-	}
-	
-	fclose(yyin);
+	str_cpy(tablaSimbolos[puntero_array].tipo, tipo);
+	str_cpy(tablaSimbolos[puntero_array].nombre, nombre);
+	retornar = puntero_array;
+	puntero_array++;
+	return retornar;
+}
 
-}*/
+int crear_TS(){
+	FILE *pf; 
+	int i;
+	pf = fopen("C:\Facu\LyC\tp\AL\git\ts.txt","w"); 
+
+	if (!pf){
+		return 0;
+	}
+
+	fprintf(pf, "Nombre \t \t Tipo \t \t Valor \t \t Longitud\n");
+	for (i = 0; i < puntero_array; i++){
+		if (strncmp(tablaSimbolos[i].tipo, "ID") == 0 ){  
+			fprintf(pf,"%s\n", tablaSimbolos[i].nombre);
+		}
+		else{ 
+			fprintf(pf,"_%s\n", tablaSimbolos[i].nombre);
+		}
+	}
+	fclose(pf); 
+	
+	return 1;
+}
+
+char* str_cpy(char* destination, const char* source)
+{
+    
+    if (destination == NULL) {
+        return NULL;
+    }
+    
+    char *ptr = destination;
+    
+    while (*source != '\0')
+    {
+        *destination = *source;
+        destination++;
+        source++;
+    }
+    
+    *destination = '\0';
+    
+    return ptr;
+}
+
+int strncmp(const char * str1, const char * str2)
+     {
+      while (*str1 == *str2) {
+          if (*str1 == '\0' || *str2 == '\0')
+             break;
+          str1++;
+          str2++;
+       }
+
+   if (*str1 == '\0' && *str2 == '\0')
+      return 0;
+   else
+      return -1;
+}
+
+
