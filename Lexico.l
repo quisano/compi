@@ -32,14 +32,14 @@ int eval_int( char* a ){
 		printf( "\nERROR LEXICO : Rango entero Invalido (16 bits): %s\n", yytext ); exit (0);}
 	return 0;
 }
-/*int eval_float( char* a ){
+int eval_float( char* a ){
 	char *ptr;
 	long b;
 	strtoul(a,&ptr,b);
 	if( b  < -2147483648 || b > 2147483647 ){
 		printf( "\nERROR LEXICO : Rango reales Invalido (32 bits): %s\n", yytext ); exit (0);} 
 	return 0;
-}*/
+}
 
 int eval_string( char* a ){
 	unsigned long b = sizeof(a);
@@ -102,7 +102,6 @@ READ			"READ"
 WRITE			"WRITE"
 AVG				"AVG"
 INLIST			"INLIST"
-FIN 			"FIN"
 
 %%
 
@@ -123,10 +122,9 @@ FIN 			"FIN"
 {WRITE}			{printf("\nP_Reservada_WRITE: %s", yytext);return WRITE;}
 {AVG}			{printf("\nP_Reservada_AVG: %s", yytext);return AVG;}
 {INLIST}		{printf("\nP_Reservada_INLIST: %s", yytext);return INLIST;}
-{FIN}			{printf("\nP_Reservada_FIN: %s", yytext); crear_TS();}
 
 {CTE_E}			{printf("\nConstEntera: %s", yytext); guardar_TS("CTE_E", yytext); eval_int(yytext); return CTE_E;} 
-{CTE_R}			{printf("\nConstReal: %s", yytext); guardar_TS("CTE_R", yytext); return CTE_R;} 
+{CTE_R}			{printf("\nConstReal: %s", yytext); guardar_TS("CTE_R", yytext); eval_float(yytext); return CTE_R;} 
 {ID}			{printf("\nIdentificador: %s", yytext); guardar_TS("ID", yytext); return ID;}
 {CTE_S} 		{printf("\nConstString: %s", yytext); guardar_TS("CTE_S", yytext); eval_string(yytext); return CTE_S;} 
 {COMENTARIO}
@@ -180,7 +178,7 @@ int guardar_TS(char* tipo, char* nombre){
 int crear_TS(){
 	FILE *pf; 
 	int i;
-	pf = fopen("C:\Facu\LyC\tp\AL\git\ts.txt","w"); 
+	pf = fopen("ts.txt","w"); 
 
 	if (!pf){
 		return 0;
@@ -222,17 +220,16 @@ char* str_cpy(char* destination, const char* source)
 }
 
 int strncmp(const char * str1, const char * str2)
-     {
-      while (*str1 == *str2) {
-          if (*str1 == '\0' || *str2 == '\0')
-             break;
-          str1++;
-          str2++;
-       }
-
-   if (*str1 == '\0' && *str2 == '\0')
+{
+	while (*str1 == *str2) {
+		if (*str1 == '\0' || *str2 == '\0')
+			break;
+		str1++;
+		str2++;
+	}
+	if (*str1 == '\0' && *str2 == '\0')
       return 0;
-   else
+   	else
       return -1;
 }
 

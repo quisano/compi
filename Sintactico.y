@@ -5,9 +5,9 @@
 
 int yystopparser=0;
 FILE  *yyin;
-
-  int yyerror();
-  int yylex();
+int yyerror();
+int yylex();
+int crear_TS();
 
 
 %}
@@ -53,8 +53,6 @@ FILE  *yyin;
 %token WRITE
 %token AVG
 %token INLIST
-
-
 
 %%
 
@@ -221,10 +219,11 @@ int main(int argc, char *argv[])
         
     }
 	fclose(yyin);
-        return 0;
+	crear_TS();
+    return 0;
 }
 int yyerror(void)
-     {
-       printf("Error Sintactico\n");
-	 exit (1);
-     }
+{
+	printf("Error Sintactico\n");
+	exit (1);
+}
