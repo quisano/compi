@@ -149,8 +149,12 @@ int eval_int( char* n ){
 	return 0;
 }
 int eval_float( char* n ){
-	double real = atof(n);
-	if( real  < -2147483648 || real > 2147483647 ){
+	char *ptr;
+	long ret;
+	ret = strtol(n, &ptr,10);	
+	long cota_i = 2147483648*(-1);
+	long cota_s = 2147483647;
+	if( ret  <= cota_i || ret >= cota_s ){
 		printf( "\nERROR LEXICO : Rango reales Invalido (32 bits): %s\n", yytext ); 
 		exit (0);
 	} 
@@ -158,7 +162,8 @@ int eval_float( char* n ){
 }
 
 int eval_string( char* s ){
-	int cadena = strlen(s);
+	int cadena = contarChar(s);
+	printf("%d",cadena);
 	if( cadena > 30 ){
 		printf( "\nERROR LEXICO : Longitud String Invalido ( 30 caracteres ): %s\n", yytext ); exit (0);}
 	return 0;
@@ -235,6 +240,15 @@ int strncmp(const char * str1, const char * str2)
       return 0;
    	else
       return -1;
+}
+
+int contarChar( char* a ){
+	int i, cont = 0;
+	for( i = 0 ; i < 32 ; i++ ){	
+		if( a[i] != '\n' )
+			cont++;
+	}
+	return cont;
 }
 
 
