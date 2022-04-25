@@ -1,372 +1,229 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <float.h>
 #include "y.tab.h"
 
-typedef struct{
-    char nombre[33];
-    char tipo[15];
-    char valor[32];
-    char longitud[10];
-}t_simbolo;
-
-
-typedef struct s_nodo{
-    t_simbolo simbolo;
-    struct s_nodo *sig;
-}t_nodo;
-
-typedef t_nodo *t_lista;
 int yystopparser=0;
-
-
-t_lista list;
-
 FILE  *yyin;
-char *yyltext;
-char *yytext;
-char tituloTS[] = "NOMBRE\t\t\tTIPO\t\t\tVALOR\t\t\tLONGITUD\n";
-void nuevoSimbolo(char nombre[], char tipo[], void* valor);
-void crearLista(t_lista*);
-int comparacionDeSimbolo(const t_simbolo*, const t_simbolo*);
-void vaciarLista(t_lista*);
-void imprimirLista(FILE* pf, t_lista* pl);
-void actualizar_tipo_dato(char tipo[], t_lista*);
-void actualizar_tipo_dato_en_simbolo(t_simbolo* d, char tipo[]);
+int yyerror();
+int yylex();
+int crear_TS();
 
-extern int yyerror(char *message);
-extern int yylex(void);
 
 %}
 
-%union {
-	int int_val;
-	double float_val;
-	char *string_val;
-}
-
-//--Start Symbol
-%start programa
-
-//--Tokens
-// - Palabras reservadas
-%token DECVAR
-%token ENDDEC
+%token CTE_E
+%token CTE_R
+%token ID
+%token OP_ASIG   
+%token OP_SUM
+%token OP_MUL      
+%token OP_RES
+%token OP_DIV      
+%token LA          
+%token LC
+%token PARA
+%token PARC
+%token CORA
+%token CORC
+%token AND 
+%token OR
+%token CO_IGUAL
+%token CO_DIST
+%token CO_MENI
+%token CO_MEN
+%token CO_MAYI
+%token CO_MAY
 %token IF
 %token THEN
 %token ELSE
 %token ENDIF
 %token WHILE
-%token DO
-%token ENDWHILE
-%token INLIST
-%token AVG
+%token CTE_S 			
+%token DP				
+%token PC				
+%token COMA
+%token PUNTO
+%token DECVAR
+%token ENDDEC
 %token INT
 %token FLOAT
 %token STRING
 %token READ
 %token WRITE
+%token AVG
+%token INLIST
 
-// - Operadores
-%token OP_SUM
-%token OP_RES
-%token OP_DIV
-%token OP_MUL
-%token OP_MOD
-%token OP_ASIG
-%token OP_IGUAL
-%token OP_DOSP
-
-// - Elementos gramaticales
-%token CAR_COMA
-%token CAR_PYC
-%token CAR_PA
-%token CAR_PC
-%token CAR_CA
-%token CAR_CC
-%token CAR_LA
-%token CAR_LC
-
-// - Comparadores
-%token CMP_MAYOR
-%token CMP_MENOR
-%token CMP_MAYORIGUAL
-%token CMP_MENORIGUAL
-%token CMP_DISTINTO
-%token CMP_IGUAL
-
-// - Conectores
-%token AND
-%token OR
-%token NOT
-
-// - Constantes
-%token <string_val>ID
-%token <int_val>CTE_INT
-%token <float_val>CTE_FLOAT
-%token <string_val>CTE_STRING
-
-// - Definicion de la gramatica
 %%
+
 programa:
-	declaracion_variables {printf("Fin Declaracion de variables\n");}
-	sentencias
-
-declaracion_variables: 
-	{printf("Declaracion de variables\n");} DECVAR lista_de_declaracion_variables_multiple ENDDEC
-
-lista_de_declaracion_variables_multiple:
-	lista_variables_multiple OP_DOSP declaracion_tipo
-
-lista_variables_multiple:
-	lista_variables_multiple CAR_COMA ID {printf("Regla -> lista_variables_multiple: lista_variables_multiple , ID\n");} |
-	ID 	{printf("Regla -> lista_variables_multiple: ID\n");}
-
-declaracion_tipo:
-	INT
-	| FLOAT	
-	| STRING
-
-sentencias:
-	sentencias sentencia |
-	sentencia
-
+		sentencia {printf(" Sentencia es Programa\n"); } 
+		| programa sentencia {printf( " Programa y Sentencia es Programa\n"); }
+		;
+		
 sentencia:
-	//sentencia operacion {printf("Regla -> sentencia: sentencia operacion\n");} |
-	operacion  {printf("Regla -> sentencia: operacion\n");}
+		asignacion	{ printf(" Asignacion es Sentencia\n"); }
+		| iteracion { printf(" Iteracion es Sentencia\n"); }
+		| seleccion { printf(" Seleccion es Sentencia\n"); }
+		| zonadec { printf(" Zona Declaracion es Sentencia\n"); }
+		| read { printf("Read es Sentencia\n"); }
+		| write { printf("Write es Sentencia\n"); }
+		;
 
-operacion:
-	operacion_if 		{printf("Regla -> operacion : operacion_if\n");}	|
-	iteracion  			{printf("Regla -> operacion : iteracion\n");}	|
-	asignacion			{printf("Regla -> operacion : asignacion\n");}
+asignacion:
+		ID OP_ASIG expresion {printf(" ID := Expresion es Asignacion\n"); }
+		| ID OP_ASIG constante_string {printf(" ID := Constante String es Asignacion\n"); }
+		| ID OP_ASIG promedio {printf(" ID := AVG es Asignacion\n");}
+		;
 
-operacion_if:
-	IF CAR_PA condiciones CAR_PC CAR_LA sentencias CAR_LC {printf("Regla -> IF (condiciones) {sentencias}\n");} |
-	IF CAR_PA condiciones CAR_PC CAR_LA sentencias CAR_LC ELSE CAR_LA sentencias CAR_LC {printf("Regla -> IF (condiciones) {sentencias} ELSE {sentencias}\n");}
+seleccion:
+		IF PARA condicion PARC THEN LA programa LC ELSE LA programa LC ENDIF{printf(" IF (Condicion) THEN {Programa} ELSE {Programa} Es Seleccion\n"); }
+		| IF PARA condicion PARC THEN LA programa LC ENDIF{printf(" IF (Condicion) THEN {Programa} es Seleccion\n"); }
+		;
 
 iteracion:
-	WHILE CAR_PA condiciones CAR_PC CAR_LA sentencias CAR_LC {printf("Regla -> WHILE (condiciones) {sentencias}\n");}
-
-condiciones:
-	condicion 						{printf("Regla -> condiciones : condicion\n");}	|
-	NOT condicion 					{printf("Regla -> condiciones : !condicion\n");} |
-	condicion operador condicion 	{printf("Regla -> condiciones : condicion operador condicion\n");}
+		WHILE PARA condicion PARC LA programa LC {printf(" WHILE (Condicion) { programa } es Iteracion\n"); }
+		;
 
 condicion:
-	expresion operador expresion 	{printf("Regla -> condicion : expresion operador condicion\n");} |
-	funcion_especial 				{printf("Regla -> condicion : funcion_especial\n");}
-
-funcion_especial: 
-	INLIST CAR_PA expresion CAR_PYC argumentos CAR_PC {printf("Regla -> funcion_especial: INLIST CAR_PA expresion CAR_PYC argumentos CAR_PC\n");} |
-	AVG CAR_PA argumentos CAR_PC {printf("Regla -> funcion_especial: AVG CAR_PA argumentos CAR_PC\n");}
-
-argumentos:
-	CAR_CA argumento CAR_CC {printf("Regla -> argumentos: CAR_CA argumento CAR_CC\n");}
-
-argumento:
-	argumento CAR_COMA factor {printf("Regla -> argumento: argumento CAR_COMA factor\n");} |
-	factor {printf("Regla -> argumento: factor\n");}
-
-operador:
-	AND				{printf("Regla -> operador : AND\n");}|
-	OR 				{printf("Regla -> operador : OR\n");}|
-	CMP_IGUAL 		{printf("Regla -> operador : ==\n");}|
-	CMP_DISTINTO 	{printf("Regla -> operador : !=\n");}| 
-	CMP_MENOR 		{printf("Regla -> operador : <\n");}|
-	CMP_MAYOR 		{printf("Regla -> operador : >\n");}| 
-	CMP_MENORIGUAL 	{printf("Regla -> operador : <=\n");}| 
-	CMP_MAYORIGUAL	{printf("Regla -> operador : >=\n");}
-
-
-asignacion:	
-	ID OP_ASIG expresion	{printf("Regla -> asignacion: ID := expresion\n");}
+		  condicion AND comparacion {printf(" Condicion AND Comparacion es Condicion\n"); }
+		| condicion OR comparacion {printf(" Condicion OR Comparacion es Condicion\n"); }
+		| inlist {printf(" INLIST es Condicion\n"); }
+		| comparacion {printf(" Comparacion es Condicion\n"); }
+		;
+		
+comparacion:
+		expresion comparador expresion {printf(" Expresion es Comparador y Expresion\n"); }
+		;
+		
+comparador:
+		CO_IGUAL {printf(" == es Comparador\n"); }
+		| CO_DIST {printf(" != es Comparador\n"); }
+		| CO_MENI {printf(" <= es Comparador\n"); }
+		| CO_MEN {printf(" < es Comparador\n"); }
+		| CO_MAYI {printf(" >= es Comparador\n"); }
+		| CO_MAY {printf(" > es Comparador\n"); }
+		;
 
 expresion:
-	expresion OP_RES termino	{printf("Regla -> expresion: expresion - termino\n");}|
-	expresion OP_SUM termino	{printf("Regla -> expresion: expresion + termino\n");}|
-	termino						{printf("Regla -> expresion: termino\n");}
-
+		expresion OP_SUM termino {printf(" Expresion + Termino es Expresion\n"); }
+		| expresion OP_RES termino {printf(" Expresion - Termino es Expresion\n"); }
+		| termino {printf(" Termino es Expresion\n"); } 
+		;
+		
 termino:
-	termino OP_MUL factor	{printf("Regla -> termino: termino * factor\n");}|	
-	termino OP_DIV factor	{printf("Regla -> termino: termino / factor\n");}|
-	factor					{printf("Regla -> termino: factor\n");}
-
+		termino OP_MUL factor {printf(" Termino * Factor es Termino\n"); }
+		| termino OP_DIV factor {printf(" Termino / Factor es Termino\n"); }
+		| factor {printf(" Factor es Termino\n"); }
+		;
+		
 factor:
-	ID 			{printf("Regla -> factor: ID\n");}| 
-	constante	{printf("Regla -> factor: constante\n");}
+		PARA expresion PARC {printf(" ( Expresion ) es Factor\n"); }
+		| ID {printf(" ID es Factor\n"); }
+		| CTE_E {printf(" CTE_E es Factor\n"); }
+		| CTE_R {printf(" CTE_R es Factor\n"); }
+		| promedio {printf(" Promedio es Factor\n");}
+		;
+		
+zonadec:
+		DECVAR  declaracion {printf (" DECVAR Declaracion es Zonadec\n"); }
+		| declaracion {printf (" Declaracion es Zonadec\n"); }
+		| declaracion ENDDEC {printf (" Declaracion ENDDEC es Zonadec\n"); }
+		;
+		
+declaracion:
+		variable DP tipo {printf(" Variable: Tipo es Declaracion\n"); }
+		;
+		
+variable:
+		variable COMA ID { printf(" Variable,ID es Variable\n"); } 
+		| ID { printf(" ID es Variable\n"); } 
+		;
+tipo:
+		FLOAT {printf (" FLOAT es Tipo\n"); }
+		| INT {printf (" INT es Tipo\n"); }
+		| STRING {printf (" STRING es Tipo\n"); }
+		;
+		
+constante_string:
+		CTE_S {printf (" CTE_S es Constante String\n"); }
+		;
 
-constante:
-	CTE_INT		{printf("Regla -> constante: INT\n");}|
-	CTE_FLOAT	{printf("Regla -> constante: FLOAT\n");}|
-	CTE_STRING	{printf("Regla -> constante: STRING\n");}
+promedio: 
+		AVG PARA lista PARC {printf("Promedio: AVG ( Argumentos )\n");}
+		;
+lista:
+		CORA lista_argumentos CORC {printf("[ Lista_Argumentos] es Lista\n");}
+		;
+		
+lista_argumentos:
+		argumento COMA argumento {printf("Argumento , Argumento es Lista Argumentos\n");}
+		;
+		
+argumento:
+		CTE_E COMA factor {printf(" CTE_E , Factor es Argumento\n");}
+		| CTE_R COMA factor {printf("CTE_R , Factor es Argumento\n");}
+		| PARA expresion PARC  {printf("( expresion ) es Argumento\n");} 
+		;
+		
+inlist:
+		INLIST PARA lista_inlist PARC { printf( "INLIST ( lista_inlist ) es Inlist\n"); }
+		;
 
+lista_inlist:
+		arg_inlist PC arg_inlist { printf("Arg_Inlist ; Arg_Inlist es Lista_Inlist\n" ); }
+		| arg_inlist { printf("Arg_Inlist es Lista_Inlist\n" ); }
+	
+arg_inlist:
+		expresion PC arg_inlist{ printf("Expresion ; Arg_Inlist es Arg_Inlist\n" ); }
+		| termino PC arg_inlist { printf("Termino ; Arg_Inlist es Arg_Inlist\n" ); }
+		| factor { printf("Factor es Arg_Inlist\n" ); }
+		| CORA vector CORC { printf("[Vector] es Arg_Inlist\n" ); }
+		;
+		
+vector:	
+		expresion PC vector{ printf("Expresion ; Vector es Vector\n" ); }
+		| termino PC vector { printf("Termino ; Vector es Vector\n" ); }
+		| factor PC vector { printf("Factor ; Vector es Vector\n" ); }
+		| factor { printf("Factor es Vector\n" ); }
+		| expresion { printf("Expresion es Vector\n" ); }
+		| termino { printf("Termino es Vector\n" ); }
+		;
+		
+read:
+		READ CTE_S { printf("READ CTE_S es Read\n"); }
+		| READ CTE_E {printf(" READ CTE_E es Read\n"); }
+		| READ ID {printf(" READ ID es Read\n"); }
+		| READ CTE_R {printf(" READ CTE_R es Read\n"); }
+		;
+write:
+		WRITE CTE_S { printf("WRITE CTE_S es Write\n"); }
+		| WRITE CTE_E {printf(" WRITE CTE_E es Write\n"); }
+		| WRITE ID {printf(" WRITE ID es Write\n"); }
+		| WRITE CTE_R {printf(" WRITE CTE_R es Write\n"); }
+		;
 %%
 
-//Función main: Abre el archivo de pruebas lo lee y escribe Tabla de Simbolos.
-int main(int argc,char *argv[])
-{
-	FILE* pf = fopen("ts.txt","wt");
-	
-	if (!(yyin = fopen(argv[1], "rt")))
-	{
-		printf("\nError al abrir %s. Se aborta la ejecucion.\n", argv[1]);
-		return -1;
-	}
 
-	crearLista(&list);
-	
-	yyparse();
-	
+int main(int argc, char *argv[])
+{
+    if((yyin = fopen(argv[1], "rt"))==NULL)
+    {
+        printf("\nNo se puede abrir el archivo de prueba: %s\n", argv[1]);
+       
+    }
+    else
+    { 
+        
+        yyparse();
+        
+    }
 	fclose(yyin);
-	imprimirLista(pf,&list);
-	vaciarLista(&list);
-	fclose(pf);
-
-	printf("\n\n* COMPILACION EXITOSA *\n");
-
-	return 0;
-}
-
-//Función comparacionDeSimbolo: Compara los nombres de los IDs para no agregar ya existentes
-int comparacionDeSimbolo(const t_simbolo *d,const t_simbolo *dc)
-{
-    return (strcmp(d->nombre ,dc->nombre));
-
-}
-
-//Función crearLista: Función que inicializa en NULL la lista de simbolos
-void crearLista(t_lista *pl)
-{
-    *pl=NULL;
-}
-
-//Función vaciarLista: Función que libera los recursos de la memoria utilizado por la lista de simbolos
-void vaciarLista(t_lista *pl)
-{
-    t_nodo* aux;
-
-    while(*pl)
-    {
-        aux=*pl;
-        *pl=aux->sig;
-        free(aux);
-    }
-}
-
-
-//Función imprimirLista: Función que imprime en el archivo .txt de la tabla de simbolos la lista de simbolos
-void imprimirLista(FILE* pf, t_lista* pl)
-{
-    fprintf(pf," Nombre                          | Tipo          | Valor                          | Longitud |\n");
-    fprintf(pf,"---------------------------------|---------------|--------------------------------|----------|\n");
-
-    while(*pl)
-    {
-        fprintf(pf,"%-33s|%-15s|%-32s|%-10s|\n",(*pl)->simbolo.nombre,(*pl)->simbolo.tipo,(*pl)->simbolo.valor,(*pl)->simbolo.longitud);
-		pl=&(*pl)->sig;
-    }
-}
-
-//Función enlistar: Función que agrega en lista un nuevo nodo de estructura tipo Simbolo
-int enlistar(t_lista *pl,t_simbolo* d)
-{
-    t_nodo* nue;
-
-    while(*pl && comparacionDeSimbolo(d,&(*pl)->simbolo))
-    {
-        pl=&(*pl)->sig;
-    }
-
-    if(!(*pl))
-    {
-        nue=(t_nodo*) malloc(sizeof(t_nodo));
-
-        if(!nue)
-            return -1;
-
-        nue->simbolo=*d;
-        nue->sig=NULL;
-        *pl=nue;
-
-        return 1;
-    }
-
+	crear_TS();
     return 0;
 }
-
-//Función nuevoSimbolo: Función realiza un Set de valores a un nuevo nodo de estructura tipo Simbolo
-void nuevoSimbolo(char nombre[], char tipo[], void* valor)
+int yyerror(void)
 {
-	int* entero;
-	double* real;
-	char *array;
-   	int length, c = 0;
-   	char aux[30];
-
-	t_simbolo simbolo;
-
-	strcpy(simbolo.longitud,"--");
-	strcpy(simbolo.valor,"");
-
-	if(strcmp(tipo,"ID") != 0)
-	{
-		if(strcmp(tipo,"CTE_INT") == 0)
-		{
-			entero = (int *) valor;
-			sprintf(simbolo.valor,"%d",*entero);
-			sprintf(simbolo.nombre,"_%d",*entero);
-		}
-		if(strcmp(tipo,"CTE_FLOAT") == 0)
-		{
-			real = (double*) valor;
-			sprintf(simbolo.valor,"%.7f",*real);
-			sprintf(simbolo.nombre,"_%.7f",*real);
-		}
-
-		if(strcmp(tipo,"CTE_STRING") == 0)
-		{
-			array= (char*)valor;
-			length = strlen(array) - 2;
-		 
-		   	while (c < length) {
-		      	aux[c] = array[1+c];
-		     	c++;
-		   	}
-		   	aux[c] = '\0';
-			array = aux;
-
-			sprintf(simbolo.valor,"%s",array);
-			sprintf(simbolo.nombre,"_%s",array);
-			sprintf(simbolo.longitud,"%d",strlen(array));
-		}
-		strcpy(simbolo.tipo,tipo);
-	}
-	else {
-		strcpy(simbolo.tipo,tipo);
-		strcpy(simbolo.nombre,nombre);
-	}
-
-	enlistar(&list,&simbolo);
-}
-
-//Función actualizar_tipo_dato: Función que recorre la lista de simbolos buscando IDs sin tipo de datos para asignarle el tipo correcto.
-void actualizar_tipo_dato(char tipo[], t_lista *pl){
-	char* tipo_simb;
-	char* id = "ID";
-
-	while(*pl) {
-		tipo_simb = (*pl)->simbolo.tipo;
-
-		if(strcmp(tipo_simb, id)==0) {
-			actualizar_tipo_dato_en_simbolo(&(*pl)->simbolo, tipo);
-		}
-		pl=&(*pl)->sig;
-	}
-}
-
-//Función actualizar_tipo_dato_en_simbolo: Función que realiza un String Copy del tipo de dato a un nodo Simbolo.
-void actualizar_tipo_dato_en_simbolo(t_simbolo* d, char tipo[]) {
-		strcpy(d->tipo, tipo);
+	printf("Error Sintactico\n");
+	exit (1);
 }

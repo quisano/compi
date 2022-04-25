@@ -1,39 +1,78 @@
--/ Declaración de variables /-
-DECVAR A, B, C, D, E : INT ENDDEC
+-/ZONA DE DECLARACION DE VARIABLES/-
+DECVAR 
+	A, B, C, D, E: INT
+	H, R: FLOAT
+	G, F, W: STRING
+ENDDEC
 
--/ Asignaciones /-
+-/ASIGNACIONES/-
 A := 5
-B := 10
+B := -10
 C := 15
+H := 2.3
+R2 := -.4
 
--/ Condición If /-
-IF( A < 4 && B > 9 ){
- 	D := 5
+-/IF/-
+IF( A < 4 && B>9 )
+THEN
+{
+ 	D:=5
 }
+ENDIF
 
--/ Condición If con Else /-
-IF( A == 4 || B != 9 ){
- 	D := 5
-}ELSE{
-	D := 4
+-/IF ELSE/-
+IF(A == 4 || B!=9)
+THEN
+{
+ 	D:=5
 }
-
--/ Función average /-
-A := AVG([2.3 ; 1.22])
-
--/ Función inlist /-
-IF( INLIST( A + 1 ; [ 110; var1 ] ) ){
-	A:=1
-}ELSE{
-	A:=0
+ELSE
+{
+	D:=4
 }
+ENDIF
 
--/  /-
 G:= "HOLA"
-F:= "HOLA TODO BIEN"
+F:="HOLA TODO BIEN!"
+
 E:= 12
 
--/ Ciclo While /-
-WHILE(E > B){
+-/WHILE/-
+WHILE(E > B)
+{
 	E:= E - 1
 }
+
+A := AVG ( [ 2 , -2.3 , 1.22, (A+B)] )
+
+
+IF( INLIST( A + 1 ; [ 110; var1 ] ) )
+THEN
+{
+	A:=1
+}
+ELSE
+{
+	A:=0
+}
+ENDIF
+
+
+-/ERRORES DEL LEXICO/-
+-/D := 50000/-
+-/H := 4200000000.00/-
+-/W := "012345678901234567890123435678901234567890123456789"/-
+-/W := "0123456789012345678901234356789"/-
+-/@/-
+-/FIN ERRORES LEXICO/-
+
+READ F
+WRITE F
+WRITE "ES UN SIETE"
+	
+		
+		
+		
+	
+	
+	
