@@ -15,8 +15,8 @@ int crear_TS();
 
 int puntero_array = 0;
 
-char* str_cpy(char* destination, const char* source);
-int strncmp(const char * str1, const char * str2);
+char* str_cpy(char* destino, const char* origen);
+int str_cmp(const char * str1, const char * str2);
 
 struct struct_tablaSimbolos tablaSimbolos[1000];
 
@@ -42,8 +42,8 @@ SIMBOLO			[:>!]
 A_COMENTARIO	"-/"
 C_COMENTARIO	"/-"
 
-CTE_E	        {DIGITO}+
-CTE_R			{DIGITO}*"."{DIGITO}*
+CTE_E	        ("-")*{DIGITO}+
+CTE_R			("-")*{DIGITO}*"."{DIGITO}*
 ID				{LETRA}({LETRA}|{DIGITO}|_)*
 CTE_S 			"\""({LETRA}|{DIGITO}|{SIMBOLO}|.)+"\""
 COMENTARIO		{A_COMENTARIO}({LETRA}|{DIGITO}|.)+{C_COMENTARIO}
@@ -163,7 +163,6 @@ int eval_float( char* n ){
 
 int eval_string( char* s ){
 	int cadena = contarChar(s);
-	printf("%d",cadena);
 	if( cadena > 30 ){
 		printf( "\nERROR LEXICO : Longitud String Invalido ( 30 caracteres ): %s\n", yytext ); exit (0);}
 	return 0;
@@ -173,7 +172,7 @@ int guardar_TS(char* tipo, char* nombre){
 	int i;
 	int retornar;
 	for(i = 0; i < puntero_array; i++){
-		if(strncmp(tablaSimbolos[i].nombre, nombre) == 0){
+		if(str_cmp(tablaSimbolos[i].nombre, nombre) == 0){
 			return i;
 		}
 	}
@@ -195,8 +194,9 @@ int crear_TS(){
 
 	fprintf(pf, "Nombre \t \t Tipo \t \t Valor \t \t Longitud\n");
 	for (i = 0; i < puntero_array; i++){
-		if (strncmp(tablaSimbolos[i].tipo, "ID") == 0 ){  
-			fprintf(pf,"%s\n", tablaSimbolos[i].nombre);
+		if (str_cmp(tablaSimbolos[i].tipo, "ID") == 0 || str_cmp(tablaSimbolos[i].tipo, "CTE_E") == 0 || 
+			str_cmp(tablaSimbolos[i].tipo, "CTE_R") == 0 || str_cmp(tablaSimbolos[i].tipo, "CTE_S") == 0){  
+			fprintf(pf,"%s\t \t%s\n", tablaSimbolos[i].nombre, tablaSimbolos[i].tipo);
 		}
 		else{ 
 			fprintf(pf,"_%s\n", tablaSimbolos[i].nombre);
@@ -207,28 +207,28 @@ int crear_TS(){
 	return 1;
 }
 
-char* str_cpy(char* destination, const char* source)
+char* str_cpy(char* destino, const char* origen)
 {
     
-    if (destination == NULL) {
+    if (destino == NULL) {
         return NULL;
     }
     
-    char *ptr = destination;
+    char *ptr = destino;
     
-    while (*source != '\0')
+    while (*origen != '\0')
     {
-        *destination = *source;
-        destination++;
-        source++;
+        *destino = *origen;
+        destino++;
+        origen++;
     }
     
-    *destination = '\0';
+    *destino = '\0';
     
     return ptr;
 }
 
-int strncmp(const char * str1, const char * str2)
+int str_cmp(const char * str1, const char * str2)
 {
 	while (*str1 == *str2) {
 		if (*str1 == '\0' || *str2 == '\0')

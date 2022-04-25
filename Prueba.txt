@@ -1,15 +1,16 @@
 -/ZONA DE DECLARACION DE VARIABLES/-
 DECVAR 
 	A, B, C, D, E: INT
-	H: FLOAT
+	H, R: FLOAT
 	G, F, W: STRING
 ENDDEC
 
 -/ASIGNACIONES/-
 A := 5
-B := 10
+B := -10
 C := 15
 H := 2.3
+R2 := -.4
 
 -/IF/-
 IF( A < 4 && B>9 )
@@ -42,7 +43,7 @@ WHILE(E > B)
 	E:= E - 1
 }
 
-A := AVG ( [ 2 , 2.3 , 1.22, (A+B)] )
+A := AVG ( [ 2 , -2.3 , 1.22, (A+B)] )
 
 
 IF( INLIST( A + 1 ; [ 110; var1 ] ) )
