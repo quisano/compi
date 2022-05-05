@@ -46,7 +46,7 @@ WHILE(E > B)
 A := AVG ( [ 2 , -2.3 , 1.22, (A+B)] )
 
 
-IF( INLIST( A + 1 ; [ 110; var1 ] ) )
+IF( INLIST( A ; [ B + 34 * 5; 110 ; var1 ; G ] ) )
 THEN
 {
 	A:=1

@@ -150,44 +150,20 @@ constante_string:
 		;
 
 promedio: 
-		AVG PARA lista PARC {printf("Promedio: AVG ( Argumentos )\n");}
+		AVG PARA CORA lista_avg CORC PARC {printf("AVG ( [Lista_Avg] es AVG )\n");}
 		;
-lista:
-		CORA lista_argumentos CORC {printf("[ Lista_Argumentos] es Lista\n");}
-		;
-		
-lista_argumentos:
-		argumento COMA argumento {printf("Argumento , Argumento es Lista Argumentos\n");}
-		;
-		
-argumento:
-		CTE_E COMA factor {printf(" CTE_E , Factor es Argumento\n");}
-		| CTE_R COMA factor {printf("CTE_R , Factor es Argumento\n");}
-		| PARA expresion PARC  {printf("( expresion ) es Argumento\n");} 
+lista_avg:
+		lista_avg COMA expresion {printf("Lista_Avg , Expresion es Lista_Avg\n");}
+		| expresion {printf("Expresion es Lista_Avg\n");}
 		;
 		
 inlist:
-		INLIST PARA lista_inlist PARC { printf( "INLIST ( lista_inlist ) es Inlist\n"); }
+		INLIST PARA ID PC CORA lista_inlist CORC PARC { printf( "INLIST ( id , [lista_inlist] ) es INLIST\n"); }
 		;
 
 lista_inlist:
-		arg_inlist PC arg_inlist { printf("Arg_Inlist ; Arg_Inlist es Lista_Inlist\n" ); }
-		| arg_inlist { printf("Arg_Inlist es Lista_Inlist\n" ); }
-	
-arg_inlist:
-		expresion PC arg_inlist{ printf("Expresion ; Arg_Inlist es Arg_Inlist\n" ); }
-		| termino PC arg_inlist { printf("Termino ; Arg_Inlist es Arg_Inlist\n" ); }
-		| factor { printf("Factor es Arg_Inlist\n" ); }
-		| CORA vector CORC { printf("[Vector] es Arg_Inlist\n" ); }
-		;
-		
-vector:	
-		expresion PC vector{ printf("Expresion ; Vector es Vector\n" ); }
-		| termino PC vector { printf("Termino ; Vector es Vector\n" ); }
-		| factor PC vector { printf("Factor ; Vector es Vector\n" ); }
-		| factor { printf("Factor es Vector\n" ); }
-		| expresion { printf("Expresion es Vector\n" ); }
-		| termino { printf("Termino es Vector\n" ); }
+		lista_inlist PC expresion { printf( "Lista_Inlist ; Expresion es Lista_Inlist\n"); }
+		| expresion
 		;
 		
 read:
