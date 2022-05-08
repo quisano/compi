@@ -24,7 +24,12 @@ ENDIF
 IF(A == 4 || B!=9)
 THEN
 {
- 	D:=5
+ 	IF ( A == 4 )
+	THEN 
+	{
+		D:=5
+	}
+	ENDIF
 }
 ELSE
 {

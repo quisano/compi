@@ -77,8 +77,8 @@ asignacion:
 		;
 
 seleccion:
-		IF PARA condicion PARC THEN LA programa LC ELSE LA programa LC ENDIF{printf(" IF (Condicion) THEN {Programa} ELSE {Programa} Es Seleccion\n"); }
-		| IF PARA condicion PARC THEN LA programa LC ENDIF{printf(" IF (Condicion) THEN {Programa} es Seleccion\n"); }
+		IF PARA condicion PARC THEN LA programa LC ELSE LA programa LC ENDIF{printf(" IF (Condicion) THEN {Programa} ELSE {Programa} ENDIF Es Seleccion\n"); }
+		| IF PARA condicion PARC THEN LA programa LC ENDIF{printf(" IF (Condicion) THEN {Programa} ENDIF es Seleccion\n"); }
 		;
 
 iteracion:
