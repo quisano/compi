@@ -95,7 +95,7 @@ INLIST			"INLIST"
 {STRING}		{printf("\nP_Reservada_STRING: %s", yytext);return STRING;}
 {IF}			{printf("\nP_Reservada_IF: %s", yytext);return IF;}
 {THEN}			{printf("\nP_Reservada_THEN: %s", yytext);return THEN;}
-{ELSE}			{printf("\nP_Reservada_THEN: %s", yytext);return ELSE;}
+{ELSE}			{printf("\nP_Reservada_ELSE: %s", yytext);return ELSE;}
 {ENDIF}			{printf("\nP_Reservada_ENDIF: %s", yytext);return ENDIF;}
 {WHILE}			{printf("\nP_Reservada_WHILE: %s", yytext);return WHILE;}
 {READ}			{printf("\nP_Reservada_READ: %s", yytext);return READ;}

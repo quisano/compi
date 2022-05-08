@@ -33,7 +33,16 @@ THEN
 }
 ELSE
 {
-	D:=4
+	IF ( A > 3 )
+	THEN
+	{
+		D:=4
+	}
+	ELSE
+	{
+		C:=3
+	}
+	ENDIF
 }
 ENDIF
 
