@@ -1,18 +1,19 @@
 %{
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "y.tab.h"
 
 struct struct_tablaSimbolos{
 	char nombre[100];
 	char tipo[100];
 	char valor[50];
-	char longitud[100];
+	int longitud;
 };
 
 int guardar_TS(char*, char*);
 int crear_TS();
-
+int contarChar( char* a );
 int puntero_array = 0;
 
 char* str_cpy(char* destino, const char* origen);
@@ -162,7 +163,7 @@ int eval_float( char* n ){
 }
 
 int eval_string( char* s ){
-	int cadena = contarChar(s);
+	int cadena = strlen(s);
 	if( cadena > 30 ){
 		printf( "\nERROR LEXICO : Longitud String Invalido ( 30 caracteres ): %s\n", yytext ); exit (0);}
 	return 0;
@@ -178,6 +179,12 @@ int guardar_TS(char* tipo, char* nombre){
 	}
 	str_cpy(tablaSimbolos[puntero_array].tipo, tipo);
 	str_cpy(tablaSimbolos[puntero_array].nombre, nombre);
+	str_cpy(tablaSimbolos[puntero_array].valor, "");
+	if(tipo == "CTE_S"){
+		int longitud = strlen(nombre);
+		printf("\nLongitud: %d", longitud);
+		tablaSimbolos[puntero_array].longitud = longitud;
+	}
 	retornar = puntero_array;
 	puntero_array++;
 	return retornar;
@@ -192,14 +199,14 @@ int crear_TS(){
 		return 0;
 	}
 
-	fprintf(pf, "Nombre \t \t Tipo \t \t Valor \t \t Longitud\n");
+	fprintf(pf, "%-32s|\t%-15s|\t%-32s|\t%-13s\n\n","Nombre","Tipo","Valor","Longitud");
 	for (i = 0; i < puntero_array; i++){
 		if (str_cmp(tablaSimbolos[i].tipo, "ID") == 0 || str_cmp(tablaSimbolos[i].tipo, "CTE_E") == 0 || 
 			str_cmp(tablaSimbolos[i].tipo, "CTE_R") == 0 || str_cmp(tablaSimbolos[i].tipo, "CTE_S") == 0){  
-			fprintf(pf,"%s\t \t%s\n", tablaSimbolos[i].nombre, tablaSimbolos[i].tipo);
+			fprintf(pf, "%-32s|\t%-15s|\t%-32s|\t%-13d\n\n",tablaSimbolos[i].nombre, tablaSimbolos[i].tipo, tablaSimbolos[i].valor, tablaSimbolos[i].longitud);
 		}
 		else{ 
-			fprintf(pf,"_%s\n", tablaSimbolos[i].nombre);
+			fprintf(pf, "_%-32s|\t%-15s|\t%-32s|\t%-13d\n\n",tablaSimbolos[i].nombre, tablaSimbolos[i].tipo, tablaSimbolos[i].valor, tablaSimbolos[i].longitud);
 		}
 	}
 	fclose(pf); 
