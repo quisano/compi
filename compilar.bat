@@ -1,8 +1,9 @@
 :: Script para windows
+del intermedio.txt
 flex Lexico.l
 bison -dyv Sintactico.y
 
-gcc.exe lex.yy.c y.tab.c -o Primera.exe
+gcc.exe lex.yy.c y.tab.c arbol.h -o Primera.exe
 
 Primera.exe Prueba.txt
 

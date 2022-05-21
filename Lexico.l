@@ -137,6 +137,7 @@ INLIST			"INLIST"
 "\n\t"
 " "             		
 "\r\n"
+"@"			 { printf( "\nERROR LEXICO : Caracter no reconocido: %s\n", yytext ); exit (0);}
 .			 { printf( "\nERROR LEXICO : Caracter no reconocido: %s\n", yytext ); exit (0);}
 
 %%

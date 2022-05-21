@@ -2,13 +2,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "y.tab.h"
+#include "arbol.h"
+//#include "ts.h"
 
 int yystopparser=0;
 FILE  *yyin;
 int yyerror();
 int yylex();
 int crear_TS();
-
 
 %}
 
@@ -62,16 +63,16 @@ programa:
 		;
 		
 sentencia:
-		asignacion	{ printf(" Asignacion es Sentencia\n"); }
+		asignacion	{ printf(" Asignacion es Sentencia\n");  Sp = Ap; exportar( Sp ); }
 		| iteracion { printf(" Iteracion es Sentencia\n"); }
 		| seleccion { printf(" Seleccion es Sentencia\n"); }
-		| zonadec { printf(" Zona Declaracion es Sentencia\n"); }
+		| zonadec { printf(" Zona Declaracion es Sentencia\n"); Sp = Zp; exportar( Sp ); }
 		| read { printf("Read es Sentencia\n"); }
 		| write { printf("Write es Sentencia\n"); }
 		;
 
 asignacion:
-		ID OP_ASIG expresion {printf(" ID := Expresion es Asignacion\n"); }
+		ID OP_ASIG expresion {printf(" ID := Expresion es Asignacion\n");  Ap = crearNodo(":=" , crearHoja("ID") , Ep); }
 		| ID OP_ASIG constante_string {printf(" ID := Constante String es Asignacion\n"); }
 		| ID OP_ASIG promedio {printf(" ID := AVG es Asignacion\n");}
 		;
@@ -106,43 +107,48 @@ comparador:
 		;
 
 expresion:
-		expresion OP_SUM termino {printf(" Expresion + Termino es Expresion\n"); }
-		| expresion OP_RES termino {printf(" Expresion - Termino es Expresion\n"); }
-		| termino {printf(" Termino es Expresion\n"); } 
+		expresion OP_SUM termino {printf(" Expresion + Termino es Expresion\n"); Ep = crearNodo("+",Ep,Tp);}
+		| expresion OP_RES termino {printf(" Expresion - Termino es Expresion\n");  Ep = crearNodo("-",Ep,Tp); }
+		| termino {printf(" Termino es Expresion\n");  Ep = Tp; } 
 		;
 		
 termino:
-		termino OP_MUL factor {printf(" Termino * Factor es Termino\n"); }
-		| termino OP_DIV factor {printf(" Termino / Factor es Termino\n"); }
-		| factor {printf(" Factor es Termino\n"); }
+		termino OP_MUL factor {printf(" Termino * Factor es Termino\n"); Tp = crearNodo("*",Tp,Fp); }
+		| termino OP_DIV factor {printf(" Termino / Factor es Termino\n");  Tp = crearNodo("/",Tp,Fp); }
+		| factor {printf(" Factor es Termino\n");  Tp = Fp; }
 		;
 		
 factor:
-		PARA expresion PARC {printf(" ( Expresion ) es Factor\n"); }
-		| ID {printf(" ID es Factor\n"); }
-		| CTE_E {printf(" CTE_E es Factor\n"); }
-		| CTE_R {printf(" CTE_R es Factor\n"); }
-		| promedio {printf(" Promedio es Factor\n");}
+		PARA  expresion PARC {printf(" ( Expresion ) es Factor\n"); Fp = Ep; }
+		| ID {printf(" ID es Factor\n"); Fp = crearHoja("ID"); }
+		| CTE_E {printf(" CTE_E es Factor\n"); Fp = crearHoja("CTE_E");}
+		| CTE_R {printf(" CTE_R es Factor\n"); Fp = crearHoja("CTE_R");}
+		| promedio {printf(" Promedio es Factor\n"); }
 		;
 		
 zonadec:
-		DECVAR  declaracion {printf (" DECVAR Declaracion es Zonadec\n"); }
-		| declaracion {printf (" Declaracion es Zonadec\n"); }
-		| declaracion ENDDEC {printf (" Declaracion ENDDEC es Zonadec\n"); }
+		DECVAR  declaracion {printf (" DECVAR Declaracion es Zonadec\n"); Zp = Dp; }
+		| declaracion {printf (" Declaracion es Zonadec\n"); Zp = Dp; }
+		| declaracion {Zp = Dp; } ENDDEC {printf (" Declaracion ENDDEC es Zonadec\n"); }
 		;
 		
 declaracion:
-		variable DP tipo {printf(" Variable: Tipo es Declaracion\n"); }
+		lista_dec DP tipo {printf(" Lista_Declaracion : Tipo es Declaracion\n"); Dp = crearNodo(":",LDp,TPp ); }
+		;
+
+lista_dec:
+		lista_dec COMA variable {printf(" Lista_Declaracion , Variable es Lista_Declaracion\n"); LDp = crearNodo(",",LDp,Vp); }
+		| variable {printf(" Variable es Lista_Declaracion\n"); LDp = Vp ; }
 		;
 		
 variable:
-		variable COMA ID { printf(" Variable,ID es Variable\n"); } 
-		| ID { printf(" ID es Variable\n"); } 
+		ID { printf(" ID es Variable\n"); Vp = crearHoja("ID");} 
 		;
+		
 tipo:
-		FLOAT {printf (" FLOAT es Tipo\n"); }
-		| INT {printf (" INT es Tipo\n"); }
-		| STRING {printf (" STRING es Tipo\n"); }
+		FLOAT {printf (" FLOAT es Tipo\n"); TPp = crearHoja("FLOAT");} 
+		| INT {printf (" INT es Tipo\n"); TPp = crearHoja("INT");}
+		| STRING {printf (" STRING es Tipo\n"); TPp = crearHoja("STRING");}
 		;
 		
 constante_string:
@@ -183,6 +189,7 @@ write:
 
 int main(int argc, char *argv[])
 {
+
     if((yyin = fopen(argv[1], "rt"))==NULL)
     {
         printf("\nNo se puede abrir el archivo de prueba: %s\n", argv[1]);
@@ -194,6 +201,7 @@ int main(int argc, char *argv[])
         yyparse();
         
     }
+	
 	fclose(yyin);
 	crear_TS();
     return 0;
