@@ -67,13 +67,13 @@ sentencia:
 		| iteracion { printf(" Iteracion es Sentencia\n"); }
 		| seleccion { printf(" Seleccion es Sentencia\n"); }
 		| zonadec { printf(" Zona Declaracion es Sentencia\n"); Sp = Zp; exportar( Sp ); }
-		| read { printf("Read es Sentencia\n"); }
-		| write { printf("Write es Sentencia\n"); }
+		| read { printf("Read es Sentencia\n"); Sp = Rp; exportar( Sp ); }
+		| write { printf("Write es Sentencia\n"); Sp = Wp; exportar( Sp ); }
 		;
 
 asignacion:
 		ID OP_ASIG expresion {printf(" ID := Expresion es Asignacion\n");  Ap = crearNodo(":=" , crearHoja("ID") , Ep); }
-		| ID OP_ASIG constante_string {printf(" ID := Constante String es Asignacion\n"); }
+		| ID OP_ASIG constante_string {printf(" ID := Constante String es Asignacion\n"); Ap = crearNodo(":=",crearHoja("ID"),CSp);}
 		| ID OP_ASIG promedio {printf(" ID := AVG es Asignacion\n");}
 		;
 
@@ -152,7 +152,7 @@ tipo:
 		;
 		
 constante_string:
-		CTE_S {printf (" CTE_S es Constante String\n"); }
+		CTE_S {printf (" CTE_S es Constante String\n"); CSp = crearHoja("CTE_S");}
 		;
 
 promedio: 
@@ -173,16 +173,16 @@ lista_inlist:
 		;
 		
 read:
-		READ CTE_S { printf("READ CTE_S es Read\n"); }
-		| READ CTE_E {printf(" READ CTE_E es Read\n"); }
-		| READ ID {printf(" READ ID es Read\n"); }
-		| READ CTE_R {printf(" READ CTE_R es Read\n"); }
+		READ CTE_S { printf("READ CTE_S es Read\n"); Rp = crearHoja("CTE_S");}
+		| READ CTE_E {printf(" READ CTE_E es Read\n"); Rp = crearHoja("CTE_E");}
+		| READ ID {printf(" READ ID es Read\n"); Rp = crearHoja("ID");}
+		| READ CTE_R {printf(" READ CTE_R es Read\n"); Rp = crearHoja("CTE_R"); }
 		;
 write:
-		WRITE CTE_S { printf("WRITE CTE_S es Write\n"); }
-		| WRITE CTE_E {printf(" WRITE CTE_E es Write\n"); }
-		| WRITE ID {printf(" WRITE ID es Write\n"); }
-		| WRITE CTE_R {printf(" WRITE CTE_R es Write\n"); }
+		WRITE CTE_S { printf("WRITE CTE_S es Write\n"); Wp = crearHoja("CTE_S");}
+		| WRITE CTE_E {printf(" WRITE CTE_E es Write\n"); Wp = crearHoja("CTE_E");}
+		| WRITE ID {printf(" WRITE ID es Write\n"); Wp = crearHoja("ID");}
+		| WRITE CTE_R {printf(" WRITE CTE_R es Write\n"); Wp = crearHoja("CTE_R");}
 		;
 %%
 
