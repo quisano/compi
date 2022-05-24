@@ -56,17 +56,19 @@ int crear_TS();
 %token INLIST
 
 %%
-
+start:
+		programa { Stp = Pp; exportar(Stp); }
+;
 programa:
-		sentencia {printf(" Sentencia es Programa\n"); } 
-		| programa sentencia {printf( " Programa y Sentencia es Programa\n"); }
+		sentencia {printf(" Sentencia es Programa\n"); Pp = crearNodo( ";" , Pp, Sp); } 
+		| programa sentencia {printf( " Programa y Sentencia es Programa\n"); Pp = crearNodo( ";" , Pp, Sp); }
 		;
 		
 sentencia:
-		asignacion	{ printf(" Asignacion es Sentencia\n");  Sp = Ap; exportar( Sp ); }
+		asignacion	{ printf(" Asignacion es Sentencia\n");  Sp = Ap; /*exportar( Sp ); */}
 		| iteracion { printf(" Iteracion es Sentencia\n"); }
 		| seleccion { printf(" Seleccion es Sentencia\n"); }
-		| zonadec { printf(" Zona Declaracion es Sentencia\n"); Sp = Zp; exportar( Sp ); }
+		| zonadec { printf(" Zona Declaracion es Sentencia\n"); Sp = Zp; /*exportar( Sp );*/ }
 		| read { printf("Read es Sentencia\n"); Sp = Rp; exportar( Sp ); }
 		| write { printf("Write es Sentencia\n"); Sp = Wp; exportar( Sp ); }
 		;

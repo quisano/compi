@@ -7,8 +7,8 @@ struct Nodo {
 	struct Nodo *derecha;
 };
 
-struct Nodo *Pp, *Sp= NULL, *Ap= NULL, *Ep= NULL, *Tp= NULL, *Fp= NULL, *AVGp, *LAVGp = NULL, *Zp = NULL, *Dp = NULL, *LDp = NULL , *Vp = NULL, *TPp = NULL, *Rp = NULL, *Wp = NULL ; 
-struct Nodo	*CSp = NULL;
+struct Nodo *Pp = NULL, *Sp= NULL, *Ap= NULL, *Ep= NULL, *Tp= NULL, *Fp= NULL, *AVGp, *LAVGp = NULL, *Zp = NULL, *Dp = NULL, *LDp = NULL , *Vp = NULL, *TPp = NULL, *Rp = NULL, *Wp = NULL ; 
+struct Nodo	*CSp = NULL, *Stp = NULL;
 
 struct Nodo *crearHoja(char *dato) {
     size_t tamanioNodo = sizeof(struct Nodo);
