@@ -80,8 +80,8 @@ asignacion:
 		;
 
 seleccion:
-		IF PARA condicion PARC THEN LA programa LC ELSE LA programa LC ENDIF{printf(" IF (Condicion) THEN {Programa} ELSE {Programa} ENDIF Es Seleccion\n"); }
-		| IF PARA condicion PARC THEN LA programa LC ENDIF{printf(" IF (Condicion) THEN {Programa} ENDIF es Seleccion\n"); }
+		IF PARA condicion PARC THEN LA programa LC { _THEN = Pp; } ELSE LA programa LC {_IF = crearNodo("C",_THEN,Pp);  selp = crearNodo("IF",Condp,_IF); } ENDIF{printf(" IF (Condicion) THEN {Programa} ELSE {Programa} ENDIF Es Seleccion\n"); }
+		| IF PARA condicion PARC THEN LA programa LC { _THEN = Pp; } ENDIF {printf(" IF (Condicion) THEN {Programa} ENDIF es Seleccion\n"); }
 		;
 
 iteracion:
@@ -89,23 +89,23 @@ iteracion:
 		;
 
 condicion:
-		  condicion AND comparacion {printf(" Condicion AND Comparacion es Condicion\n"); }
-		| condicion OR comparacion {printf(" Condicion OR Comparacion es Condicion\n"); }
+		  condicion AND comparacion {printf(" Condicion AND Comparacion es Condicion\n"); Condp = crearNodo("AND",Condp,Compp); }
+		| condicion OR comparacion {printf(" Condicion OR Comparacion es Condicion\n"); Condp = crearNodo("OR",Condp,Compp); }
 		| inlist {printf(" INLIST es Condicion\n"); }
-		| comparacion {printf(" Comparacion es Condicion\n"); }
+		| comparacion {printf(" Comparacion es Condicion\n"); Condp = Compp;}
 		;
 		
 comparacion:
-		expresion comparador expresion {printf(" Expresion es Comparador y Expresion\n"); }
+		expresion comparador expresion {printf(" Expresion es Comparador y Expresion\n"); Compp = crearNodo( OPCompp->dato , Ep , Ep ); }
 		;
 		
 comparador:
-		CO_IGUAL {printf(" == es Comparador\n"); }
-		| CO_DIST {printf(" != es Comparador\n"); }
-		| CO_MENI {printf(" <= es Comparador\n"); }
-		| CO_MEN {printf(" < es Comparador\n"); }
-		| CO_MAYI {printf(" >= es Comparador\n"); }
-		| CO_MAY {printf(" > es Comparador\n"); }
+		CO_IGUAL {printf(" == es Comparador\n"); OPCompp = crearHoja("==");}
+		| CO_DIST {printf(" != es Comparador\n"); OPCompp = crearHoja("!=");}
+		| CO_MENI {printf(" <= es Comparador\n"); OPCompp = crearHoja("<=");}
+		| CO_MEN {printf(" < es Comparador\n"); OPCompp = crearHoja("<");}
+		| CO_MAYI {printf(" >= es Comparador\n"); OPCompp = crearHoja(">=");}
+		| CO_MAY {printf(" > es Comparador\n"); OPCompp = crearHoja(">");}
 		;
 
 expresion:
